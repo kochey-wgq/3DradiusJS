@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>document</title>
+    <style>
+	*{
+		margin:0;
+		padding:0;
+	}
+	html{
+		perspective:1000px;
+	}
+	html,body{
+		user-select:none;
+	}
+	#wrapper,#wrapper div{
+		transform-style:preserve-3d;
+	}
+    </style>
+  </head>
+
+  <body style='background:linear-gradient(145deg,#4B0082 20%,#8968CD 50%,#4B0082 80%);overflow:hidden;height:1000px;'>
+	<div id='wrapper' style='position:relative;top:40%;left:45% ;transform-origin:center;width:100px;height:100px;'></div>
+    <script>
+	(function(){
+		const oBox = document.getElementById('wrapper');
+		let      boxChilds = oBox.getElementsByTagName('div');
+		let      initX = 0,
+		          initY = 0,
+		          zoomDeg = 100;
+		function createBox(num){
+			for(let i=0;i<num;i++){
+				var oDivSum = document.createElement('div');
+				oDivSum.style.cssText = 'width:100px;height:100px;border:2px solid purple;position:absolute;border-radius:50%;'
+				oBox.appendChild(oDivSum);
+			}
+		}
+		createBox(50);
+		function transformBox(){
+			for(let i=0;i<boxChilds.length;i++){
+				boxChilds[i].style.transform = `translateZ(-${i * 5}px) translateY(-${(260 / boxChilds.length) * i}px)`;
+				boxChilds[i].style.transition = 'all 1s ease';
+				boxChilds[i].style.boxShadow = '0 0 10px #e425e4';
+			}
+		}
+		oBox.onmousedown = function(e){
+			e = e || window.event;
+			let downX = e.clientX,
+			     downY = e.clientY;
+			oBox.style.transform = `rotateX(${initX}deg) rotateY(${initY}deg)`;
+			transformBox();
+			document.onmousemove = function(e){
+				let moveX = e.clientX,
+			       	     moveY = e.clientY;
+				let startX = moveY - downY,
+				     startY= moveX - downX;
+				downX = moveX;
+				downY = moveY;
+				initX += startX;
+				initY += startY;
+				oBox.style.transform = `rotateX(${initX}deg) rotateY(${initY}deg)`;
+			}
+			document.onmouseup = function(){
+				document.onmousemove = null;
+			}
+		}
+		function wheelBox(){
+			window.onmousewheel = function(e){
+				if(e.wheelDelta > 0){
+					scaleBox(function(zoom){
+						zoomDeg++;
+					});
+				}else{
+					scaleBox(function(zoom){
+						zoomDeg--;
+					});
+				}
+			}
+		}
+		function scaleBox(zoom){
+			zoom();
+			oBox.style.zoom = zoomDeg + '%';
+			for(i of boxChilds){
+				i.style.boxShadow = '0 0 10px rgb('+RBG()+')';
+			}
+		}
+		oBox.onmouseover = wheelBox;
+		function RBG(r,g,b){
+			r = Math.floor(Math.random() * 256),
+			g = Math.floor(Math.random() * 256),
+			b = Math.floor(Math.random() * 256);
+			return `${r},${g},${b}`;
+		}
+	}())
+	window.onload = function(){
+		let r = confirm(' ( 性能些低 ) 鼠标进入圆圈后鼠标轮滚调整缩放比例')
+		r == true ? alert('利用鼠标可拖动圆圈方向') : alert('取消也没用！反正就是利用鼠标可拖动圆圈方向');
+	}
+    </script>
+  </body>
+</html>
